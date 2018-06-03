@@ -53,7 +53,10 @@ class DBDataLayer implements DataLayer {
     $products = array();
     $con = $this->getConnection();
     $stat = $this->executeStatement($con,
-        'SELECT id, category, name, user, manufacturer FROM product WHERE category = ?',
+        'SELECT product.id, category, product.name, username, manufacturer.name FROM product 
+           JOIN manufacturer ON (manufacturer.id = manufacturer) 
+           JOIN user ON (user.id = product.user)
+          WHERE category = ?',
         function($s) use($categoryId) {$s->bind_param('i', $categoryId);}
       );
 
@@ -62,7 +65,6 @@ class DBDataLayer implements DataLayer {
     while ($cat = $stat->fetch()) {
       $products[] = new Product($id, $categoryId, $name, $user, $manufacturer);
     }
-
     $stat->close();
     $con->close();
     return $products;
@@ -73,11 +75,15 @@ class DBDataLayer implements DataLayer {
     $books = array();
     $con = $this->getConnection();
     $stat = $this->executeStatement($con,
-        'SELECT id, category, name, user, manufacturer FROM product WHERE name LIKE ?',
+        'SELECT product.id, category, product.name, username, manufacturer.name FROM product 
+           JOIN manufacturer ON (manufacturer.id = manufacturer) 
+           JOIN user ON (user.id = product.user)
+          WHERE product.name LIKE ?',
         function($s) use($name) {$s->bind_param('s', $name);}
       );
 
     $stat->bind_result($id, $categoryId, $name, $user, $manufacturer);
+    echo "2asdfasdfasdfsadf  $categoryId name: $name user: $user";
 
     while ($cat = $stat->fetch()) {
       $books[] = new Product($id, $categoryId, $name, $user, $manufacturer);
