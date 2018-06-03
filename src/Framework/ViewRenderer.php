@@ -26,7 +26,8 @@ final class ViewRenderer {
     $c = MVC::PARAM_CONTROLLER;
     $a = MVC::PARAM_ACTION;
 
-    $cc = $cssClass !== null ? " class=\" $cssClass \"" : '';
+    //$cc = $cssClass !== null ? " class=\" $cssClass \"" : '';
+    $cc = $cssClass !== null ? $cssClass : '';
     $form = <<<FORM
 <form method="$method" action="?" class="$cc">
   <input type="hidden" name="$c" value="$controller" >

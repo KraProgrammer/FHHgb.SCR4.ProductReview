@@ -8,7 +8,7 @@
     <link href="css/productreview.css" rel="stylesheet">
   </head>
   <body>
-    <nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
 		<div class="container">
 			<?php self::actionLink('Product Review', 'Index', 'Home', array(), 'navbar-brand text-info') ?>
 			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,13 +18,13 @@
 		  	<div class="collapse navbar-collapse" id="navbarNav">
 				<ul class="navbar-nav mr-auto mt-2 mt-lg-0">
 					<li class="nav-item"><?php self::actionLink('Home', 'Index', 'Home') ?></li>
-					<li class="nav-item"><?php self::actionLink('List', 'Index', 'Books') ?></li>
-					<li class="nav-item"><?php self::actionLink('Search', 'Search', 'Books') ?></li>
-					<li class="nav-item"><?php self::actionLink('Checkout', 'Create', 'Order') ?></li>
+					<li class="nav-item"><?php self::actionLink('Produkte', 'Index', 'Product') ?></li>
+					<li class="nav-item"><?php self::actionLink('Suche', 'Search', 'Product') ?></li>
+					<li class="nav-item"><?php self::actionLink('Bewertungen', 'Index', 'Review') ?></li>
 				</ul>
-				<form class="form-inline my-2 my-md-0">
+				<div class="navbar-right">
 					<?php self::renderView('partial/User', $model['user']); ?>
-				</form>
+					</div>
 		  	</div>	
     </nav>
 	</div>
