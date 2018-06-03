@@ -1,0 +1,23 @@
+body {
+  padding-top: 60px;
+}
+footer {
+  margin-top: 20px;
+  padding-top: 10px;
+  background-color: #f5f5f5;
+}
+
+#navbarNav a {
+	color: white;
+}
+
+.main-container {
+	margin-top: 50px;
+}
+
+/* fix margin bug */
+@media (max-width: 576px) {
+  .navbar-nav .nav-item {
+    margin-left: 0 !important;
+  }
+}
