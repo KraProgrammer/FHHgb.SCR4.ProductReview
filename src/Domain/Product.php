@@ -4,15 +4,15 @@ namespace Domain;
 
 class Product extends Entity
 {
-  private $categoryId;
+  private $category;
   private $name;
   private $user;
-  private $manufacturerId;
+  private $manufacturer;
   private $countReview;
   private $avgReview;
 
-  public function getCategoryId() {
-    return $this->categoryId;
+  public function getCategory() {
+    return $this->category;
   }
 
   public function getName() {
@@ -24,7 +24,7 @@ class Product extends Entity
   }
 
   public function getManufacturer() {
-      return $this->manufacturer;
+    return $this->manufacturer;
   }
 
   public function getReviewCount() {
@@ -32,12 +32,12 @@ class Product extends Entity
   }
 
   public function getReviewAvg() {
-      return $this->avgReview;
+    return $this->avgReview;
   }
 
-  function __construct($id, $categoryId, $name, $user, $manufacturer, $avgReview, $countReview) {
+  function __construct($id, $category, $name, $user, $manufacturer, $avgReview, $countReview) {
     parent::__construct($id);
-    $this->categoryId = $categoryId;
+    $this->category = $category;
     $this->name = $name;
     $this->user = $user;
     $this->manufacturer = $manufacturer;

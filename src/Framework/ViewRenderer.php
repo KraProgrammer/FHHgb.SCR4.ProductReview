@@ -15,12 +15,21 @@ final class ViewRenderer {
   }
 
   private static function actionLink(string $content, string $action, string $controller, array $params = array(), string $cssClass = null) {
+    ViewRenderer::beginActionLink($action, $controller, $params, $cssClass);
+    self::htmlOut($content);
+    ViewRenderer::endActionLink();
+  }
+
+  private static function beginActionLink(string $action, string $controller, array $params = array(), string $cssClass = null) {
     $cc = $cssClass != null ? " class=\"$cssClass\"" : "";
     $url = MVC::buildActionLink($action, $controller, $params);
     echo("<a href=\"$url\"$cc>");
-    self::htmlOut($content);
+  }
+
+  private static function endActionLink() {
     echo("</a>");
   }
+
 
   private static function beginActionForm(string $action, string $controller, array $params = null, string $method = 'get', string $cssClass = null) {
     $c = MVC::PARAM_CONTROLLER;

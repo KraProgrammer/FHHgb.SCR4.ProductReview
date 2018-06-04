@@ -50,24 +50,49 @@ class DBDataLayer implements DataLayer {
     return $manufacturers;
   }
 
+  public function getProductsForId($id) {
+    $con = $this->getConnection();
+    $stat = $this->executeStatement($con,
+        'SELECT product.id, categories.name, product.name, username, manufacturer.name, COALESCE(AVG(review.rating), 3), COUNT(review.id) FROM product 
+           JOIN manufacturer ON (manufacturer.id = manufacturer) 
+           JOIN user ON (user.id = product.user)
+           JOIN categories ON (category = categories.id)
+      LEFT JOIN review ON (product.id = review.product)
+          WHERE product.id = ?
+       GROUP BY product.id, category, product.name, username, manufacturer.name',
+        function($s) use($id) {$s->bind_param('i', $id);}
+      );
+
+    $stat->bind_result($id, $category, $name, $user, $manufacturer, $avg, $count);
+
+
+    while ($cat = $stat->fetch()) {
+      $product = new Product($id, $category, $name, $user, $manufacturer, $avg, $count);
+    }
+    $stat->close();
+    $con->close();
+    return $product;
+  }
+
   public function getProductsForCategory($categoryId) {
     $products = array();
     $con = $this->getConnection();
     $stat = $this->executeStatement($con,
-        'SELECT product.id, category, product.name, username, manufacturer.name, COALESCE(AVG(review.rating), 3), COUNT(review.id) FROM product 
+        'SELECT product.id, categories.name, product.name, username, manufacturer.name, COALESCE(AVG(review.rating), 3), COUNT(review.id) FROM product 
            JOIN manufacturer ON (manufacturer.id = manufacturer) 
            JOIN user ON (user.id = product.user)
+           JOIN categories ON (category = categories.id)
       LEFT JOIN review ON (product.id = review.product)
           WHERE category = ?
        GROUP BY product.id, category, product.name, username, manufacturer.name',
         function($s) use($categoryId) {$s->bind_param('i', $categoryId);}
       );
 
-    $stat->bind_result($id, $categoryId, $name, $user, $manufacturer, $avg, $count);
+    $stat->bind_result($id, $category, $name, $user, $manufacturer, $avg, $count);
 
 
     while ($cat = $stat->fetch()) {
-      $products[] = new Product($id, $categoryId, $name, $user, $manufacturer, $avg, $count);
+      $products[] = new Product($id, $category, $name, $user, $manufacturer, $avg, $count);
     }
     $stat->close();
     $con->close();
@@ -79,20 +104,21 @@ class DBDataLayer implements DataLayer {
     $products = array();
     $con = $this->getConnection();
     $stat = $this->executeStatement($con,
-        'SELECT product.id, category, product.name, username, manufacturer.name, COALESCE(AVG(review.rating), 3), COUNT(review.id) FROM product 
+        'SELECT product.id, categories.name, product.name, username, manufacturer.name, COALESCE(AVG(review.rating), 3), COUNT(review.id) FROM product 
            JOIN manufacturer ON (manufacturer.id = manufacturer) 
            JOIN user ON (user.id = product.user)
+           JOIN categories ON (category = categories.id)
       LEFT JOIN review ON (product.id = review.product)
           WHERE product.name LIKE ? OR manufacturer.name LIKE ? 
-       GROUP BY product.id, category, product.name, username, manufacturer.name',
+       GROUP BY product.id, categories.name, product.name, username, manufacturer.name',
         function($s) use($name) {$s->bind_param('ss', $name, $name);}
       );
 
-    $stat->bind_result($id, $categoryId, $name, $user, $manufacturer, $avg, $count);
+    $stat->bind_result($id, $category, $name, $user, $manufacturer, $avg, $count);
 
 
     while ($cat = $stat->fetch()) {
-      $products[] = new Product($id, $categoryId, $name, $user, $manufacturer, $avg, $count);
+      $products[] = new Product($id, $category, $name, $user, $manufacturer, $avg, $count);
     }
 
     $stat->close();
@@ -140,6 +166,27 @@ class DBDataLayer implements DataLayer {
     return $user;
   }
 
+  public function getReviewForProductId($productId) {
+    $reviews = array();
+    $con = $this->getConnection();
+    $stat = $this->executeStatement($con,
+        'SELECT review.id, username, product.name, date, rating, comment
+           FROM `review` 
+           JOIN product ON (review.product = product.id)
+           JOIN user ON (review.user = user.id)
+          WHERE review.product = ?',
+        function($s) use($productId) {$s->bind_param('i', $productId);}
+      );
+
+    $stat->bind_result($id, $user, $product, $date, $rating, $comment);
+    while ($cat = $stat->fetch()) {
+      $reviews[] = new Review($id, $product, $date, $user, $rating, $comment);
+    }
+    $stat->close();
+    $con->close();
+    return $reviews;
+  }
+
   public function getReviewForUserId($userId) {
     $reviews = array();
     $con = $this->getConnection();
@@ -181,6 +228,29 @@ class DBDataLayer implements DataLayer {
     return $productId;
   }
 
+  public function updateProduct($productId, $category, $name, $manufacturer) {
+    $con = $this->getConnection();
+    $con->autocommit(false);
+
+    $catId = $this->getCategoryId($con, $category);
+    $manuId = $this->getManufacturerId($con, $manufacturer);
+    $stat = $this->executeStatement($con,
+        'UPDATE product 
+            SET name = ?, 
+            category = ?,
+            manufacturer = ?
+          WHERE product.id = ?',
+        function($s) use($catId, $name, $manuId, $productId) {$s->bind_param('siii', $name, $catId, $manuId, $productId);}
+      );
+
+    $stat->close();
+
+    $con->commit();
+    $con->close();
+
+    return $productId;
+  }
+  
   // ==== private helper functions
 
   private function getConnection() {

@@ -22,6 +22,10 @@ footer {
   }
 }
 
+.fa-edit {
+  color:#fff;
+}
+
 /* rating */
 .checked {
   color: orange !important;

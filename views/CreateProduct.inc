@@ -1,7 +1,13 @@
 <?php self::renderView('partial/Header', $model); ?>
 <div class="container main-container">
-  <h1>Eine neues Produkt anlegen</h1>
-    <?php self::beginActionForm('Create', 'Product', null, 'post'); ?>
+    <h1>Eine neues Produkt anlegen</h1>
+    <?php 
+        if (isset($model['product']) && $model['product'] !== null) {
+            self::beginActionForm('Modify', 'Product', array('pid' => $model['product']->getId()), 'post');
+        } else {
+            self::beginActionForm('Create', 'Product', null, 'post');            
+        }
+    ?>
         <div class="form-group">
             <label for="category"> Kategorie</label>
             <input class="form-control" id="category" name="cat" value="<?php self::htmlOut($model['category']) ?>">
@@ -14,7 +20,7 @@
             <label for="manufacturer"> Hersteller</label>
             <input class="form-control" id="manufacturer" name="manu" value="<?php self::htmlOut($model['manufacturer']) ?>">
         </div>
-        <button class="btn btn-info">Produkt erstellen</button>
+        <button class="btn btn-info">Produkt speichern</button>
     <?php self::endActionForm(); ?>
 </div>
 
