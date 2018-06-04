@@ -6,8 +6,10 @@ class Product extends Entity
 {
   private $categoryId;
   private $name;
-  private $userId;
+  private $user;
   private $manufacturerId;
+  private $countReview;
+  private $avgReview;
 
   public function getCategoryId() {
     return $this->categoryId;
@@ -17,19 +19,29 @@ class Product extends Entity
     return $this->name;
   }
 
-  public function getUserId() {
-    return $this->userId;
+  public function getUser() {
+    return $this->user;
   }
 
-  public function getManufacturerId() {
-      return $this->manufacturerId;
+  public function getManufacturer() {
+      return $this->manufacturer;
   }
 
-  function __construct($id, $categoryId, $name, $userId, $manufacturerId) {
+  public function getReviewCount() {
+    return $this->countReview;
+  }
+
+  public function getReviewAvg() {
+      return $this->avgReview;
+  }
+
+  function __construct($id, $categoryId, $name, $user, $manufacturer, $avgReview, $countReview) {
     parent::__construct($id);
     $this->categoryId = $categoryId;
     $this->name = $name;
-    $this->userId = $userId;
-    $this->manufacturerId = $manufacturerId;
+    $this->user = $user;
+    $this->manufacturer = $manufacturer;
+    $this->countReview = $countReview;
+    $this->avgReview = $avgReview;
   }
 }

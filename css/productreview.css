@@ -21,3 +21,8 @@ footer {
     margin-left: 0 !important;
   }
 }
+
+/* rating */
+.checked {
+  color: orange !important;
+}

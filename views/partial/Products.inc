@@ -2,19 +2,18 @@
 <table class="table">
   <tr>
     <th>Name</th>
-    <th>Hersteller</th>
-    <th>Ersteller</th>
+    <th class="d-none d-md-table-cell">Hersteller</th>
+    <th class="d-none d-md-table-cell">Ersteller</th>
     <th>Anzahl</th>
     <th>Rating</th>
-    <th></th>
   </tr>
 <?php foreach ($model['products'] as $product):  ?>
   <tr>
     <td><?php self::htmlOut($product->getName()); ?> </td>
-    <td><?php self::htmlOut($product->getManufacturerId()); ?> </td>
-    <td><?php self::htmlOut($product->getUserId()); ?> </td>
-    <td>5</td>
-    <td>4.0</td>
+    <td class="d-none d-md-table-cell"><?php self::htmlOut($product->getManufacturer()); ?> </td>
+    <td class="d-none d-md-table-cell"><?php self::htmlOut($product->getUser()); ?> </td>
+    <td><?php self::htmlOut($product->getReviewCount()); ?></td>
+    <td><?php self::htmlOut($product->getReviewAvg()); ?></td>
   </tr>
 <?php endforeach; ?>
 </table>

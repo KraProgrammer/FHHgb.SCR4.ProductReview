@@ -6,6 +6,7 @@ use \Domain\Product;
 use \Domain\Category;
 use \Domain\Manufacturer;
 use \Domain\User;
+use \Domain\Review;
 
 class DBDataLayer implements DataLayer {
   private $server;
@@ -53,17 +54,20 @@ class DBDataLayer implements DataLayer {
     $products = array();
     $con = $this->getConnection();
     $stat = $this->executeStatement($con,
-        'SELECT product.id, category, product.name, username, manufacturer.name FROM product 
+        'SELECT product.id, category, product.name, username, manufacturer.name, COALESCE(AVG(review.rating), 3), COUNT(review.id) FROM product 
            JOIN manufacturer ON (manufacturer.id = manufacturer) 
            JOIN user ON (user.id = product.user)
-          WHERE category = ?',
+      LEFT JOIN review ON (product.id = review.product)
+          WHERE category = ?
+       GROUP BY product.id, category, product.name, username, manufacturer.name',
         function($s) use($categoryId) {$s->bind_param('i', $categoryId);}
       );
 
-    $stat->bind_result($id, $categoryId, $name, $user, $manufacturer);
+    $stat->bind_result($id, $categoryId, $name, $user, $manufacturer, $avg, $count);
+
 
     while ($cat = $stat->fetch()) {
-      $products[] = new Product($id, $categoryId, $name, $user, $manufacturer);
+      $products[] = new Product($id, $categoryId, $name, $user, $manufacturer, $avg, $count);
     }
     $stat->close();
     $con->close();
@@ -72,26 +76,28 @@ class DBDataLayer implements DataLayer {
 
   public function getProductsForSearchCriteria($name) {
     $name = "%$name%";
-    $books = array();
+    $products = array();
     $con = $this->getConnection();
     $stat = $this->executeStatement($con,
-        'SELECT product.id, category, product.name, username, manufacturer.name FROM product 
+        'SELECT product.id, category, product.name, username, manufacturer.name, COALESCE(AVG(review.rating), 3), COUNT(review.id) FROM product 
            JOIN manufacturer ON (manufacturer.id = manufacturer) 
            JOIN user ON (user.id = product.user)
-          WHERE product.name LIKE ?',
+      LEFT JOIN review ON (product.id = review.product)
+          WHERE product.name LIKE ?
+       GROUP BY product.id, category, product.name, username, manufacturer.name',
         function($s) use($name) {$s->bind_param('s', $name);}
       );
 
-    $stat->bind_result($id, $categoryId, $name, $user, $manufacturer);
-    echo "2asdfasdfasdfsadf  $categoryId name: $name user: $user";
+    $stat->bind_result($id, $categoryId, $name, $user, $manufacturer, $avg, $count);
+
 
     while ($cat = $stat->fetch()) {
-      $books[] = new Product($id, $categoryId, $name, $user, $manufacturer);
+      $products[] = new Product($id, $categoryId, $name, $user, $manufacturer, $avg, $count);
     }
 
     $stat->close();
     $con->close();
-    return $books;
+    return $products;
   }
 
   public function getUser($id) {
@@ -132,6 +138,27 @@ class DBDataLayer implements DataLayer {
     $con->close();
 
     return $user;
+  }
+
+  public function getReviewForUserId($userId) {
+    $reviews = array();
+    $con = $this->getConnection();
+    $stat = $this->executeStatement($con,
+        'SELECT review.id, username, product.name, date, rating, comment
+           FROM `review` 
+           JOIN product ON (review.product = product.id)
+           JOIN user ON (review.user = user.id)
+          WHERE review.user = ?',
+        function($s) use($userId) {$s->bind_param('i', $userId);}
+      );
+
+    $stat->bind_result($id, $user, $product, $date, $rating, $comment);
+    while ($cat = $stat->fetch()) {
+      $reviews[] = new Review($id, $product, $date, $user, $rating, $comment);
+    }
+    $stat->close();
+    $con->close();
+    return $reviews;
   }
 
   // public function createOrder($userId, $bookIds, $nameOnCard, $cardNumber) {

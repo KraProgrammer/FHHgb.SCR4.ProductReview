@@ -4,22 +4,22 @@ namespace Domain;
 
 class Review extends Entity
 {
-  private $productId;
+  private $product;
   private $date;
-  private $userId;
+  private $user;
   private $rating;
   private $comment;
 
-  public function getProductId() {
-    return $this->productId;
+  public function getProduct() {
+    return $this->product;
   }
 
   public function getDate() {
     return $this->date;
   }
 
-  public function getUserId() {
-    return $this->userId;
+  public function getUser() {
+    return $this->user;
   }
 
   public function getRating() {
@@ -30,11 +30,11 @@ class Review extends Entity
       return $this->comment;
   }
 
-  function __construct($id, $productId, $date, $userId, $rating, $comment) {
+  function __construct($id, $product, $date, $user, $rating, $comment) {
     parent::__construct($id);
-    $this->productId = $productId;
+    $this->product = $product;
     $this->date = $date;
-    $this->userId = $userId;
+    $this->user = $user;
     $this->rating = $rating;
     $this->comment = $comment;
   }
