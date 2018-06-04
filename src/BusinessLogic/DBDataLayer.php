@@ -83,9 +83,9 @@ class DBDataLayer implements DataLayer {
            JOIN manufacturer ON (manufacturer.id = manufacturer) 
            JOIN user ON (user.id = product.user)
       LEFT JOIN review ON (product.id = review.product)
-          WHERE product.name LIKE ?
+          WHERE product.name LIKE ? OR manufacturer.name LIKE ? 
        GROUP BY product.id, category, product.name, username, manufacturer.name',
-        function($s) use($name) {$s->bind_param('s', $name);}
+        function($s) use($name) {$s->bind_param('ss', $name, $name);}
       );
 
     $stat->bind_result($id, $categoryId, $name, $user, $manufacturer, $avg, $count);
