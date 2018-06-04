@@ -13,7 +13,7 @@
     <td class="d-none d-md-table-cell"><?php self::htmlOut($product->getManufacturer()); ?> </td>
     <td class="d-none d-md-table-cell"><?php self::htmlOut($product->getUser()); ?> </td>
     <td><?php self::htmlOut($product->getReviewCount()); ?></td>
-    <td><?php self::htmlOut($product->getReviewAvg()); ?></td>
+    <td><?php self::htmlOut(number_format((float)$product->getReviewAvg(), 1, '.', '')); ?></td>
   </tr>
 <?php endforeach; ?>
 </table>

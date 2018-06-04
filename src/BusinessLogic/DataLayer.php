@@ -10,5 +10,5 @@ interface DataLayer {
   public function getUser($id);
   public function getUserForUserNameAndPassword($userName, $password);
   public function getReviewForUserId($userId);
-  // public function createOrder($userId, $bookIds, $nameOnCard, $cardNumber);
+  public function createProduct($userId, $category, $name, $manufacturer);
 }

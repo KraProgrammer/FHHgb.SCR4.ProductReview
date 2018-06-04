@@ -161,27 +161,25 @@ class DBDataLayer implements DataLayer {
     return $reviews;
   }
 
-  // public function createOrder($userId, $bookIds, $nameOnCard, $cardNumber) {
-  //   $con = $this->getConnection();
-  //   $con->autocommit(false);
-  //   $stat = $this->executeStatement($con,
-  //       'INSERT INTO orders (userId, creditCardNumber, creditCardHolder) VALUES (?, ?, ?)',
-  //       function($s) use($userId, $nameOnCard, $cardNumber) {$s->bind_param('iss', $userId, $nameOnCard, $cardNumber);}
-  //     );
+  public function createProduct($userId, $category, $name, $manufacturer) {
+    $con = $this->getConnection();
+    $con->autocommit(false);
 
-  //   $orderId = $stat->insert_id;
-  //   $stat.close();
-  //   foreach ($bookIds as $bookId) {
-  //     $this->executeStatement($con,
-  //       'INSERT INTO orderedBooks (orderId, bookId) VALUES (?, ?)',
-  //       function($s) use($orderId, $bookId) {$s->bind_param('ii', $orderId, $bookId);}
-  //     );
-  //   }
-  //   $stat->close();
-  //   $con->close();
+    $catId = $this->getCategoryId($con, $category);
+    $manuId = $this->getManufacturerId($con, $manufacturer);
+    $stat = $this->executeStatement($con,
+        'INSERT INTO product (category, name, user, manufacturer) VALUES (?, ?, ?, ?)',
+        function($s) use($catId, $name, $userId, $manuId) {$s->bind_param('isii', $catId, $name, $userId, $manuId);}
+      );
 
-  //   return $orderId;
-  // }
+    $productId = $stat->insert_id;
+    $stat->close();
+
+    $con->commit();
+    $con->close();
+
+    return $productId;
+  }
 
   // ==== private helper functions
 
@@ -212,4 +210,60 @@ class DBDataLayer implements DataLayer {
     }
     return $statement;
   }
+
+
+  private function getCategoryId($connection, $name) {
+    $stat = $this->executeStatement($connection,
+      'SELECT id FROM categories where name = ?',
+      function($s) use($name) {$s->bind_param('s', $name);}
+    );
+
+    /* Store the result (to get properties) */
+    $stat->store_result();
+    /* Get the number of rows */
+    $numOfRows = $stat->num_rows;
+
+    $stat->bind_result($catId);
+    $stat->fetch();
+    if ($numOfRows < 1) {
+      $insertState = $this->executeStatement($connection, 
+        'INSERT INTO categories (name) VALUES (?)', 
+        function($s) use($name) {$s->bind_param('s', $name);}
+      );
+      $catId = $insertState->insert_id;
+      $insertState->close();
+    }
+
+    $stat->free_result();
+    $stat->close();
+    return $catId;
+  }
+
+  private function getManufacturerId($connection, $name) {
+    $stat = $this->executeStatement($connection,
+      'SELECT id FROM manufacturer where name = ?',
+      function($s) use($name) {$s->bind_param('s', $name);}
+    );
+
+    /* Store the result (to get properties) */
+    $stat->store_result();
+    /* Get the number of rows */
+    $numOfRows = $stat->num_rows;
+
+    $stat->bind_result($manuId);
+    $stat->fetch();
+    if ($numOfRows < 1) {
+      $insertState = $this->executeStatement($connection, 
+        'INSERT INTO manufacturer (name) VALUES (?)', 
+        function($s) use($name) {$s->bind_param('s', $name);}
+      );
+      $manuId = $insertState->insert_id;
+      $insertState->close();
+    }
+
+    $stat->free_result();
+    $stat->close();
+    return $manuId;
+  }
+
 }

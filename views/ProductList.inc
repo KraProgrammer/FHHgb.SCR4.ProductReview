@@ -24,7 +24,9 @@
   <?php else: ?>
     <p> Please select a cagategory.</p>
   <?php endif; ?>
-
+  <?php self::beginActionForm('Create', 'Product', null, 'GET', 'form-inline my-2 my-md-0'); ?>
+  <button class="btn btn-info">Neues Produkt anlegen</button>
+  <?php self::endActionForm(); ?>
 </div>
 
 <?php self::renderView('partial/Footer', $model); ?>
