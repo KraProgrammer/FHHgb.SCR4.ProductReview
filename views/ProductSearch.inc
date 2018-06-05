@@ -1,13 +1,12 @@
 
 <?php self::renderView('partial/Header', $model); ?>
 <div class="container main-container">
-  <h1>Search</h1>
+  <h1>Produktsuche</h1>
 
   <p>
     <?php self::beginActionForm('Search', 'Product', null, 'get', 'form-inline'); ?>
       <div class="form-group">
-        <label for="name">Name</label>
-        <input class="form-control" id="name" name="name" value="<?php self::htmlOut($model['name']); ?>" />
+        <input class="form-control searchbar" placeholder="Suchbegriff" id="name" name="name" value="<?php self::htmlOut($model['name']); ?>" />
       </div>
       <button class="btn btn-info">Search</button>
     <?php self::endActionForm(); ?>
