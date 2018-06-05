@@ -9,6 +9,7 @@ interface DataLayer {
   public function getProductsForSearchCriteria($name);
   public function getProductsForId($id);
   public function getUser($id);
+  public function createUser($username, $password, $firstname, $lastname);
   public function getUserForUserNameAndPassword($userName, $password);
   public function getReviewForUserId($userId);
   public function getReviewForProductId($productId);

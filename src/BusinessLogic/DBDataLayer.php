@@ -228,6 +228,10 @@ class DBDataLayer implements DataLayer {
     return $productId;
   }
 
+  public function createUser($username, $password, $firstname, $lastname) {
+    // todo create user
+  }
+
   public function updateProduct($productId, $category, $name, $manufacturer) {
     $con = $this->getConnection();
     $con->autocommit(false);

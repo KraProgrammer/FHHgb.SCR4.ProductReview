@@ -13,6 +13,7 @@
       <input type="password" class="form-control" id="password" name="pwd">
     </div>
     <button class="btn btn-info">Log in</button>
+    <?php self::actionLink('User erstellen', 'SignUp', 'User', array(), 'btn btn-outline-success'); ?>
   <?php self::endActionForm(); ?>
 
 
