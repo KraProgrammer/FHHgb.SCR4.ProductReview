@@ -4,9 +4,11 @@ namespace Controllers;
 
 class User extends \Framework\Controller {
     private $authenticationManager;
+    private $dataLayer;
 
-    public function __construct(\BusinessLogic\AuthenticationManager $authenticationManager) {
+    public function __construct(\BusinessLogic\DataLayer $dataLayer, \BusinessLogic\AuthenticationManager $authenticationManager) {
       $this->authenticationManager = $authenticationManager;
+      $this->dataLayer = $dataLayer;
     }
 
     public function GET_LogIn() {
@@ -28,9 +30,9 @@ class User extends \Framework\Controller {
       } else {
         return $this->renderView('SignUp', array(
           'user' => $this->authenticationManager->getAuthenticatedUser(),
-          'username' => $product,
-          'firstname' => $name,
-          'lastname' => $manufacturer  
+          'username' => '',
+          'firstname' => '',
+          'lastname' => ''  
         ));
       }
     }
@@ -58,6 +60,10 @@ class User extends \Framework\Controller {
       if ($ln == null || strlen($ln) == 0) {
         $errors[] = "Invalid last name";
       }
+      $user = $this->dataLayer->isUsernameUsed($un);
+      if ($user) {
+        $errors[] = "Invalid username. Try another. ";
+      }
       
       if (count($errors) > 0 ) {
         // render error view
@@ -69,9 +75,9 @@ class User extends \Framework\Controller {
           'errors' => $errors
         ));
       } else {
-        $productId = $this->dataLayer->createUser($un, $pwd, $fn, $ln);
-
-        if ($productId == false) {
+        $userId = $this->dataLayer->createUser($un, $pwd, $fn, $ln);
+        
+        if ($userId == false) {
           // something went wrong
           return $this->renderView('SignUp', array(
             'user' => $this->authenticationManager->getAuthenticatedUser(),
@@ -81,7 +87,9 @@ class User extends \Framework\Controller {
             'errors' => array('Could not create order. Please try again.')
           ));
         } else {
-          return $this->redirect('Index', 'Home');
+          if ($this->authenticationManager->authenticate($this->getParam('un'), $this->getParam('pwd'))) {
+            return $this->redirect('Index', 'Home');
+          } 
         }
       }
 

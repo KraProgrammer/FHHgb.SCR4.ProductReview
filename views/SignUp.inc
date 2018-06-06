@@ -5,8 +5,8 @@
 
   <?php self::beginActionForm('SignUp', 'User', null, 'post'); ?>
     <div class="form-group">
-      <label for="userName"> Username</label>
-      <input class="form-control" id="userName" name="un" value='<?php self::htmlOut($model['userName']); ?>'>
+      <label for="username"> Username</label>
+      <input class="form-control" id="username" name="un" value='<?php self::htmlOut($model['username']); ?>'>
     </div>
     <div class="form-group">
       <label for="password"> Password</label>

@@ -117,7 +117,7 @@ class DBDataLayer implements DataLayer {
     $stat->bind_result($id, $category, $name, $user, $manufacturer, $avg, $count);
 
 
-    while ($cat = $stat->fetch()) {
+    while ($fetch = $stat->fetch()) {
       $products[] = new Product($id, $category, $name, $user, $manufacturer, $avg, $count);
     }
 
@@ -136,7 +136,7 @@ class DBDataLayer implements DataLayer {
 
     $stat->bind_result($id, $userName);
 
-    if ($cat = $stat->fetch()) {
+    if ($fetch = $stat->fetch()) {
       $user = new User($id, $userName);
     }
 
@@ -145,6 +145,29 @@ class DBDataLayer implements DataLayer {
 
     return $user;
   }
+
+
+  public function isUsernameUsed($userName) {
+    $user = null;
+    $con = $this->getConnection();
+    $stat = $this->executeStatement($con,
+        'SELECT id FROM user WHERE username = ?',
+        function($s) use($userName) {$s->bind_param('s', $userName);}
+      );
+
+    $stat->bind_result($id);
+
+    if ($fetch = $stat->fetch()) {
+      $result = true;
+    } else {
+      $result = false;
+    }
+
+    $stat->close();
+    $con->close();
+
+    return $result;
+  }  
 
   public function getUserForUserNameAndPassword($userName, $password) {
     $user = null;
@@ -229,7 +252,18 @@ class DBDataLayer implements DataLayer {
   }
 
   public function createUser($username, $password, $firstname, $lastname) {
-    // todo create user
+    $con = $this->getConnection();
+    $hash =  password_hash($password, PASSWORD_DEFAULT);
+
+    $stat = $this->executeStatement($con,
+        'INSERT INTO `user` (`username`, `password`, `firstName`, `lastName`) VALUES (?, ?, ?, ?)',
+        function($s) use($username, $hash, $firstname, $lastname) {$s->bind_param('ssss', $username, $hash, $firstname, $lastname);}
+      );
+
+    $con->close();
+    $userId = $stat->insert_id;
+    return $userId;
+
   }
 
   public function updateProduct($productId, $category, $name, $manufacturer) {
