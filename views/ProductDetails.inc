@@ -10,7 +10,7 @@
       </div>
       <div class="card-body">
         <h4 class="card-title">
-          <?php if ($model['user']->getUserName() === $product->getUser()): ?>
+          <?php if ($model['user'] !== null && $model['user']->getUserName() === $product->getUser()): ?>
             <div class="d-flex justify-content-between">
               <?php self::htmlOut($product->getName()); ?>
               <?php self::beginActionLink('Create', 'Product', array('pid' => $product->getId()), 'GET'); ?>
@@ -30,7 +30,11 @@
 
 
     <div class="container">
-          <br />
+      <br />
+      
+    <?php self::beginActionForm('Create', 'Review', null, 'GET', 'form-inline my-2 my-md-0'); ?>
+      <button class="btn btn-info">Neue Bewertung anlegen</button>
+    <?php self::endActionForm(); ?>
       <hr>
 
       <h3> Bewertungen </h3>
