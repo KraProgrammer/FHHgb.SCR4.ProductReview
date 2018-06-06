@@ -14,7 +14,7 @@
             <div class="d-flex justify-content-between">
               <?php self::htmlOut($product->getName()); ?>
               <?php self::beginActionLink('Create', 'Product', array('pid' => $product->getId()), 'GET'); ?>
-                <i class="far fa-edit"></i>
+                <i class="far fa-edit white"></i>
               <?php self::endActionLink(); ?>
             </div>
           <?php endif; ?>
@@ -26,26 +26,28 @@
         </p>
       </div>
     </div>
-  <?php endif ?>
+  
 
 
-    <div class="container">
-      <br />
-      
-    <?php self::beginActionForm('Create', 'Review', array('pid' => $product->getId()), 'GET', 'form-inline my-2 my-md-0'); ?>
-      <button class="btn btn-info">Neue Bewertung anlegen</button>
-    <?php self::endActionForm(); ?>
-      <hr>
+      <div class="container">
+        <br />
+        
+        <?php self::beginActionForm('Create', 'Review', array('pid' => $product->getId()), 'GET', 'form-inline my-2 my-md-0'); ?>
+          <button class="btn btn-info">Neue Bewertung anlegen</button>
+        <?php self::endActionForm(); ?>
+        <hr>
 
-      <h3> Bewertungen </h3>
-      <?php if (sizeof($model['reviews']) > 0) {
-        self::renderView('/partial/reviews', array(
-          'reviews' => $model['reviews']
-        ));
-      } else { ?>
-        <p> No reviews!.</p>
-      <?php } ?>
-    </div>
+        <h3> Bewertungen </h3>
+        <?php if (sizeof($model['reviews']) > 0) {
+          self::renderView('/partial/reviews', array(
+            'reviews' => $model['reviews'],
+            'user' => $model['user']
+          ));
+        } else { ?>
+          <p> No reviews!.</p>
+        <?php } ?>
+      </div>
+    <?php endif ?>
 </div>
 
 <?php self::renderView('partial/Footer', $model); ?>

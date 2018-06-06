@@ -1,7 +1,20 @@
 
 <?php foreach ($model['reviews'] as $review):  ?>
 <div class="card border-info mb-3">
-  <div class="card-header"><?php self::htmlOut($review->getUser()); ?> um <?php self::htmlOut($review->getDate()); ?></div>
+  <div class="card-header">
+    <div class="d-flex justify-content-between">
+
+      <?php self::htmlOut($review->getUser()); ?> um <?php self::htmlOut($review->getDate()); ?>
+      
+      <?php if (isset($model['user']) && $model['user'] !== null && $model['user']->getUserName() === $review->getUser()): ?>
+        <?php self::beginActionLink('Create', 'Review', array('rid' => $review->getId()), 'GET'); ?>
+          <i class="far fa-edit"></i>
+        <?php self::endActionLink(); ?>
+      <?php endif; ?>
+      
+
+    </div>
+  </div>
   <div class="card-body">
 
     <?php for($i = 0; $i < $review->getRating(); $i++) {

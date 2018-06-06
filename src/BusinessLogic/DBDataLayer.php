@@ -65,8 +65,8 @@ class DBDataLayer implements DataLayer {
 
     $stat->bind_result($id, $category, $name, $user, $manufacturer, $avg, $count);
 
-
-    while ($cat = $stat->fetch()) {
+    $product = null;
+    while ($fetch = $stat->fetch()) {
       $product = new Product($id, $category, $name, $user, $manufacturer, $avg, $count);
     }
     $stat->close();

@@ -5,7 +5,8 @@
   <?php if ($model['reviews'] !== null): ?>
     <?php if (sizeof($model['reviews']) > 0) {
       self::renderView('/partial/reviews', array(
-        'reviews' => $model['reviews']
+        'reviews' => $model['reviews'],
+        'user' => $model['user']
       ));
     } else { ?>
       <p> No reviews!.</p>

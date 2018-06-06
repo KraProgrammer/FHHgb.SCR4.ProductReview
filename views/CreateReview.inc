@@ -3,9 +3,9 @@
     <h1>Einen Review anlegen</h1>
     <?php 
         if (isset($model['review']) && $model['review'] !== null) {
-            self::beginActionForm('Modify', 'Review', array('rid' => $model['Review']->getId(), 'pid' => $model['productId']), 'post');
+            self::beginActionForm('Modify', 'Review', array('rid' => $model['review']->getId(), 'pid' => $model['product']->getId()), 'post');
         } else {
-            self::beginActionForm('Create', 'Review', array( 'pid' => $model['productId']), 'post');            
+            self::beginActionForm('Create', 'Review', array( 'pid' => $model['product']->getId()), 'post');            
         }
     ?>
         <div class="form-group">    
