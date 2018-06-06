@@ -84,7 +84,7 @@ class User extends \Framework\Controller {
             'username' => $un,
             'firstname' => $fn,
             'lastname' => $ln,
-            'errors' => array('Could not create order. Please try again.')
+            'errors' => array('Could not create user. Please try again.')
           ));
         } else {
           if ($this->authenticationManager->authenticate($this->getParam('un'), $this->getParam('pwd'))) {

@@ -24,24 +24,29 @@ class Review extends \Framework\Controller {
   }
 
   public function GET_Create() {
-    // $product = $this->hasParam(self::REV_ID) ? $this->dataLayer->getProductsForId($this->getParam(self::REV_ID)) : null;
+    $review = $this->hasParam(self::REV_ID) ? $this->dataLayer->getReviewForId($this->getParam(self::REV_ID)) : null;
 
-    // if ($product !== null) {
-    //   $category = $product->getCategory();
-    //   $name = $product->getName();
-    //   $manufacturer = $product->getManufacturer();
-    // } else {
-    //   $category = '';
-    //   $name= '';
-    //   $manufacturer= '';
+    if ($review !== null) {
+      $rating = $review->getRating();
+      $comment = $product->getComment();
+    } else {
+      $rating = '';
+      $comment = '';
     }
 
-    $this->renderView('CreateProduct', array(
+    $this->renderView('CreateReview', array(
       'user' => $this->authenticationManager->getAuthenticatedUser(),
-      'product' => $product,
-      'category' => $category,
-      'name' => $name,
-      'manufacturer' => $manufacturer     
+      'review' => $review,
+      'rating' => $rating,
+      'comment' => $comment     
     ));
-  }  
+  } 
+  
+  public function POST_Create() {
+    // TODO 
+  }
+
+  public function POST_Modify() {
+    // TODO
+  }
 }

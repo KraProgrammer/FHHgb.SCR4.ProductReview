@@ -231,6 +231,26 @@ class DBDataLayer implements DataLayer {
     return $reviews;
   }
 
+  public function getReviewForId($reviewId) {
+    $con = $this->getConnection();
+    $stat = $this->executeStatement($con,
+        'SELECT review.id, username, product.name, date, rating, comment
+           FROM `review` 
+           JOIN product ON (review.product = product.id)
+           JOIN user ON (review.user = user.id)
+          WHERE review.id = ?',
+        function($s) use($reviewId) {$s->bind_param('i', $reviewId);}
+      );
+
+    $stat->bind_result($id, $user, $product, $date, $rating, $comment);
+    while ($cat = $stat->fetch()) {
+      $review = new Review($id, $product, $date, $user, $rating, $comment);
+    }
+    $stat->close();
+    $con->close();
+    return $review;
+  }  
+
   public function createProduct($userId, $category, $name, $manufacturer) {
     $con = $this->getConnection();
     $con->autocommit(false);
