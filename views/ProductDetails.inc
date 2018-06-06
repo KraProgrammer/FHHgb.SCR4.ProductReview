@@ -32,7 +32,7 @@
     <div class="container">
       <br />
       
-    <?php self::beginActionForm('Create', 'Review', null, 'GET', 'form-inline my-2 my-md-0'); ?>
+    <?php self::beginActionForm('Create', 'Review', array('pid' => $product->getId()), 'GET', 'form-inline my-2 my-md-0'); ?>
       <button class="btn btn-info">Neue Bewertung anlegen</button>
     <?php self::endActionForm(); ?>
       <hr>

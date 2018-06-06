@@ -34,6 +34,9 @@ class Product extends \Framework\Controller {
     }
 
     public function GET_Create() {
+      if (!$this->authenticationManager->isAuthenticated()) {
+        return $this->redirect('LogIn', 'User'); // TODO add context so that user acan return here after loggging in
+      }
       $product = $this->hasParam(self::PROD_ID) ? $this->dataLayer->getProductsForId($this->getParam(self::PROD_ID)) : null;
 
       if ($product !== null) {

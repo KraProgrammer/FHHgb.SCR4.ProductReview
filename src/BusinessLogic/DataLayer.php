@@ -12,6 +12,7 @@ interface DataLayer {
   public function isUsernameUsed($userName);
   public function createUser($username, $password, $firstname, $lastname);
   public function getUserForUserNameAndPassword($userName, $password);
+  public function createReview($userId, $productId, $rating, $comment);
   public function getReviewForUserId($userId);
   public function getReviewForProductId($productId);
   public function createProduct($userId, $category, $name, $manufacturer);

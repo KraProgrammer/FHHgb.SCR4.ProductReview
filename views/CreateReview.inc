@@ -3,12 +3,12 @@
     <h1>Einen Review anlegen</h1>
     <?php 
         if (isset($model['review']) && $model['review'] !== null) {
-            self::beginActionForm('Modify', 'Review', array('pid' => $model['Review']->getId()), 'post');
+            self::beginActionForm('Modify', 'Review', array('rid' => $model['Review']->getId(), 'pid' => $model['productId']), 'post');
         } else {
-            self::beginActionForm('Create', 'Review', null, 'post');            
+            self::beginActionForm('Create', 'Review', array( 'pid' => $model['productId']), 'post');            
         }
     ?>
-        <div class="form-group">
+        <div class="form-group">    
             <label for="rating"> Rating</label>
             <input class="form-control" id="rating" name="rating" value="<?php self::htmlOut($model['rating']) ?>">
         </div>

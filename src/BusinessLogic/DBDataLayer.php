@@ -308,6 +308,24 @@ class DBDataLayer implements DataLayer {
 
     return $productId;
   }
+
+  public function createReview($userId, $productId, $rating, $comment) {
+    $con = $this->getConnection();
+    $con->autocommit(false);
+
+    $stat = $this->executeStatement($con,
+        'INSERT INTO review ( user, product, rating, comment) VALUES (?, ?, ?, ?)',
+        function($s) use($userId, $productId, $rating, $comment) {$s->bind_param('iiis', $userId, $productId, $rating, $comment);}
+      );
+
+    $reviewId = $stat->insert_id;
+    $stat->close();
+
+    $con->commit();
+    $con->close();
+
+    return $reviewId;
+  }  
   
   // ==== private helper functions
 
