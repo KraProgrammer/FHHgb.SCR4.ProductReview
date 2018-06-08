@@ -131,6 +131,20 @@ class Review extends \Framework\Controller {
       ));
     } else {
       $user = $this->authenticationManager->getAuthenticatedUser();
+
+      if ($review->getUser() !== $user->getUsername()) {
+        // trying to change product from other user
+        return $this->renderView('CreateReview', array(
+          'user' => $this->authenticationManager->getAuthenticatedUser(),
+          'review' => $review, 
+          'rating' => $rating,
+          'product' => null,
+          'comment' => $comment,
+          'errors' => array('Cannot change review of other users. ')
+        ));
+      }
+
+
       $reviewId = $this->dataLayer->updateReview($review->getId(), $rating, $comment);
       if ($reviewId == false) {
         // something went wrong

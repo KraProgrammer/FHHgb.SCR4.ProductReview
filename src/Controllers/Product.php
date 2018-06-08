@@ -155,7 +155,6 @@ class Product extends \Framework\Controller {
           ));
         }
 
-
         $productId = $this->dataLayer->updateProduct($productId, $category, $name, $manufacturer);
 
         if ($productId == false) {
