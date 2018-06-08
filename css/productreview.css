@@ -26,6 +26,12 @@ footer {
   margin-right: 10px;
 }
 
+@media (max-width: 580px) {
+  .searchbar {
+    margin-right: 220px;
+  }
+}
+
 /* rating */
 .checked {
   color: orange !important;
