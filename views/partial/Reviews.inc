@@ -7,7 +7,7 @@
       <?php self::htmlOut($review->getUser()); ?> um <?php self::htmlOut($review->getDate()); ?>
       
       <?php if (isset($model['user']) && $model['user'] !== null && $model['user']->getUserName() === $review->getUser()): ?>
-        <?php self::beginActionLink('Create', 'Review', array('rid' => $review->getId()), 'GET'); ?>
+        <?php self::beginActionLink('Create', 'Review', array('rid' => $review->getId())); ?>
           <i class="far fa-edit"></i>
         <?php self::endActionLink(); ?>
       <?php endif; ?>

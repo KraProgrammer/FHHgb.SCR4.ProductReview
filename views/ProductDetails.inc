@@ -13,8 +13,8 @@
           <?php if ($model['user'] !== null && $model['user']->getUserName() === $product->getUser()): ?>
             <div class="d-flex justify-content-between">
               <?php self::htmlOut($product->getName()); ?>
-              <?php self::beginActionLink('Create', 'Product', array('pid' => $product->getId()), 'GET'); ?>
-                <i class="far fa-edit white"></i>
+              <?php self::beginActionLink('Create', 'Product', array('pid' => $product->getId())); ?>
+                <i class="far fa-edit"></i>
               <?php self::endActionLink(); ?>
             </div>
           <?php endif; ?>

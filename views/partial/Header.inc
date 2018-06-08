@@ -7,6 +7,7 @@
 		<link href="css/bootstrap.min.css" rel="stylesheet">
   	<link href="css/productreview.css" rel="stylesheet">
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+		<link rel="stylesheet" href="css/fontawesome-stars.css">
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">

@@ -21,4 +21,5 @@ interface DataLayer {
   public function getReviewForProductId($productId);
   public function createReview($userId, $productId, $rating, $comment);
   public function updateReview($reviewId, $rating, $comment);
+  public function deleteReview($reviewId);
 }

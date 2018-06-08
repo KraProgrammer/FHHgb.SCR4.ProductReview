@@ -162,4 +162,50 @@ class Review extends \Framework\Controller {
     }
 
   }
+
+  public function GET_Delete() {
+    if (!$this->authenticationManager->isAuthenticated()) {
+      return $this->redirect('LogIn', 'User'); // TODO add context so that user acan return here after loggging in
+    }
+
+    $errors = array();
+    $review = $this->hasParam(self::REV_ID) ? $this->dataLayer->getReviewForId($this->getParam(self::REV_ID)) : null;
+
+    $errors = array();
+    if ($review === null) {
+      $errors[] = "Something went wrong.";
+    }
+    
+    if (count($errors) > 0 ) {
+      // render error view
+      return $this->renderView('CreateReview', array(
+        'user' => $this->authenticationManager->getAuthenticatedUser(),
+        'errors' => $errors
+      ));
+    } else {
+      $user = $this->authenticationManager->getAuthenticatedUser();
+
+      if ($review->getUser() !== $user->getUsername()) {
+        // trying to change product from other user
+        return $this->renderView('CreateReview', array(
+          'user' => $this->authenticationManager->getAuthenticatedUser(),
+          'review' => $review, 
+          'errors' => array('Cannot delete review of other users. ')
+        ));
+      }
+
+
+      $reviewId = $this->dataLayer->deleteReview($review->getId());
+      if ($reviewId == false) {
+        // something went wrong
+        return $this->renderView('CreateReview', array(
+          'user' => $this->authenticationManager->getAuthenticatedUser(),
+          'review' => $review, 
+          'errors' => array('Could not delete review. Please try again.')
+        ));
+      } else {
+        return $this->redirect('Index', 'Review');
+      }
+    }
+  }
 }

@@ -268,7 +268,8 @@ class DBDataLayer implements DataLayer {
            FROM `review` 
            JOIN product ON (review.product = product.id)
            JOIN user ON (review.user = user.id)
-          WHERE review.product = ?',
+          WHERE review.product = ?
+          ORDER BY date DESC',
         function($s) use($productId) {$s->bind_param('i', $productId);}
       );
 
@@ -289,7 +290,8 @@ class DBDataLayer implements DataLayer {
            FROM `review` 
            JOIN product ON (review.product = product.id)
            JOIN user ON (review.user = user.id)
-          WHERE review.user = ?',
+          WHERE review.user = ?
+          ORDER BY date DESC',
         function($s) use($userId) {$s->bind_param('i', $userId);}
       );
 
@@ -351,6 +353,28 @@ class DBDataLayer implements DataLayer {
           WHERE id = ?',
         function($s) use($reviewId, $rating, $comment) {$s->bind_param('isi', $rating, $comment, $reviewId);}
       );
+    $count = mysqli_stmt_affected_rows($stat);
+    $stat->close();
+
+    $con->commit();
+    $con->close();
+    if($count > 0) {
+      return $reviewId;
+    } else {
+      return null;
+    }
+  }
+
+  public function deleteReview($reviewId) {
+    $con = $this->getConnection();
+    $con->autocommit(false);
+
+    $stat = $this->executeStatement($con,
+        'DELETE FROM review 
+          WHERE id = ?',
+        function($s) use($reviewId) {$s->bind_param('i',  $reviewId);}
+      );
+      
     $count = mysqli_stmt_affected_rows($stat);
     $stat->close();
 
