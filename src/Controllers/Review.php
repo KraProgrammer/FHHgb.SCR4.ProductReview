@@ -25,19 +25,17 @@ class Review extends \Framework\Controller {
       return $this->redirect('LogIn', 'User'); // TODO add context so that user acan return here after loggging in
     }
 
-    // Fehler: auch im create -> add ids to model !!!! z.b. productId im review
-    // $review = $this->hasParam(self::REV_ID) ? $this->dataLayer->getReviewForId($this->getParam(self::REV_ID)) : null;
-    // $productId = $this->hasParam(self::PROD_ID) ? trim($this->getParam(self::PROD_ID)) : null;
+    $review = $this->hasParam(self::REV_ID) ? $this->dataLayer->getReviewForId($this->getParam(self::REV_ID)) : null;
+    $productId = $this->hasParam(self::PROD_ID) ? $this->getParam(self::PROD_ID) : null;
 
-    // if ($productId === null) {
-    //   $productName = $review !== null ? $review->getProduct() : null;
-    // }
-    // if ($productName === null) {
-    //   return $this->redirect('Index', 'Product');
-    // } else {
-    //   $product = $this->dataLayer->getProductsForSearchCriteria($productName);
-      
-    // }
+    if ($productId === null) {
+       $productId = $review !== null ? $review->getProductId() : null;
+    }
+    if ($productId === null) {
+       return $this->redirect('Index', 'Product'); // error!
+    } else {
+      $product = $this->dataLayer->getProductsForId($productId);
+    }
 
     if ($review !== null) {
       $rating = $review->getRating();
@@ -62,22 +60,14 @@ class Review extends \Framework\Controller {
     }
 
     $errors = array();
-    if ($productId === null) {
-      $productId = $review !== null ? $review->getProduct() : null;
-    }
-    if ($productId === null) {
-      return $this->redirect('Index', 'Product');
-    } else {
-      $product = $this->dataLayer->getProductsForId($productId);
-      if ($product === null) {
-        $errors[] = "Product could not be loaded";
-      }
+    $product = $this->hasParam(self::PROD_ID) ? $this->dataLayer->getProductsForId($this->getParam(self::PROD_ID)) : null;
+    if ($product == null) {
+      $errors[] = "Invalid product.";
     }
 
     // validate from datalayer
-    
-    $rating = $this->hasParam('rating') ? trim($this->getParam('rating')) : null;
-    if ($rating == null || strlen($rating) == 0) {
+    $rating = $this->hasParam('rating') ? $this->getParam('rating') : null;
+    if ($rating == null || !ctype_digit($rating)) {
       $errors[] = "Invalid rating.";
     }
     $comment = $this->hasParam('comment') ? trim($this->getParam('comment')) : null;
@@ -92,8 +82,8 @@ class Review extends \Framework\Controller {
         'errors' => $errors
       ));
     } else {
-      $user = $this->authenticationManager->getAuthenticatedUser(); //productId?
-      $reviewId = $this->dataLayer->createReview($user->getId(), $productId, $rating, $comment);
+      $user = $this->authenticationManager->getAuthenticatedUser();
+      $reviewId = $this->dataLayer->createReview($user->getId(), $product->getId(), $rating, $comment);
 
       if ($reviewId == false) {
         // something went wrong
@@ -102,7 +92,7 @@ class Review extends \Framework\Controller {
           'rating' => $rating,
           'product' => $product,
           'comment' => $comment,
-          'errors' => array('Could not create order. Please try again.')
+          'errors' => array('Could not create review. Please try again.')
         ));
       } else {
         return $this->redirect('Index', 'Review');
@@ -114,6 +104,48 @@ class Review extends \Framework\Controller {
     if (!$this->authenticationManager->isAuthenticated()) {
       return $this->redirect('LogIn', 'User'); // TODO add context so that user acan return here after loggging in
     }
-    // TODO
+
+    $review = $this->hasParam(self::REV_ID) ? $this->dataLayer->getReviewForId($this->getParam(self::REV_ID)) : null;
+
+    $errors = array();
+    if ($review === null) {
+      $errors[] = "Something went wrong.";
+    }
+
+    // validate from datalayer
+    $rating = $this->hasParam('rating') ? $this->getParam('rating') : null;
+    if ($rating == null || !ctype_digit($rating)) {
+      $errors[] = "Invalid rating.";
+    }
+    $comment = $this->hasParam('comment') ? trim($this->getParam('comment')) : null;
+    
+    if (count($errors) > 0 ) {
+      // render error view
+      return $this->renderView('CreateReview', array(
+        'user' => $this->authenticationManager->getAuthenticatedUser(),
+        'review' => $review, 
+        'rating' => $rating,
+        'product' => null,
+        'comment' => $comment,
+        'errors' => $errors
+      ));
+    } else {
+      $user = $this->authenticationManager->getAuthenticatedUser();
+      $reviewId = $this->dataLayer->updateReview($review->getId(), $rating, $comment);
+      if ($reviewId == false) {
+        // something went wrong
+        return $this->renderView('CreateReview', array(
+          'user' => $this->authenticationManager->getAuthenticatedUser(),
+          'review' => $review, 
+          'rating' => $rating,
+          'product' => null,
+          'comment' => $comment,
+          'errors' => array('Could not modify review. Please try again.')
+        ));
+      } else {
+        return $this->redirect('Index', 'Review');
+      }
+    }
+
   }
 }

@@ -22,6 +22,86 @@ class DBDataLayer implements DataLayer {
     $this->database = 'productreview';
   }
 
+  // ------ user ------
+  public function getUser($id) {
+    $user = null;
+    $con = $this->getConnection();
+    $stat = $this->executeStatement($con,
+        'SELECT id, username FROM user WHERE id = ?',
+        function($s) use($id) {$s->bind_param('i', $id);}
+      );
+
+    $stat->bind_result($id, $userName);
+
+    if ($fetch = $stat->fetch()) {
+      $user = new User($id, $userName);
+    }
+
+    $stat->close();
+    $con->close();
+
+    return $user;
+  }
+
+  public function isUsernameUsed($userName) {
+    $user = null;
+    $con = $this->getConnection();
+    $stat = $this->executeStatement($con,
+        'SELECT id FROM user WHERE username = ?',
+        function($s) use($userName) {$s->bind_param('s', $userName);}
+      );
+
+    $stat->bind_result($id);
+
+    if ($fetch = $stat->fetch()) {
+      $result = true;
+    } else {
+      $result = false;
+    }
+
+    $stat->close();
+    $con->close();
+
+    return $result;
+  }  
+
+  public function createUser($username, $password, $firstname, $lastname) {
+    $con = $this->getConnection();
+    $hash =  password_hash($password, PASSWORD_DEFAULT);
+
+    $stat = $this->executeStatement($con,
+        'INSERT INTO `user` (`username`, `password`, `firstName`, `lastName`) VALUES (?, ?, ?, ?)',
+        function($s) use($username, $hash, $firstname, $lastname) {$s->bind_param('ssss', $username, $hash, $firstname, $lastname);}
+      );
+
+    $con->close();
+    $userId = $stat->insert_id;
+    return $userId;
+
+  }
+
+  public function getUserForUserNameAndPassword($userName, $password) {
+    $user = null;
+    $con = $this->getConnection();
+    $stat = $this->executeStatement($con,
+        'SELECT id, password FROM user WHERE username = ?',
+        function($s) use($userName) {$s->bind_param('s', $userName);}
+      );
+
+    $stat->bind_result($id, $passwordHash);
+
+    if ($cat = $stat->fetch() && password_verify($password, $passwordHash)) {
+      $user = new User($id, $userName);
+    }
+
+    $stat->close();
+    $con->close();
+
+    return $user;
+  }
+
+  // ------ categories and manufacturer ------
+
   public function getCategories() {
     $categories = array();
     $con = $this->getConnection();
@@ -49,6 +129,8 @@ class DBDataLayer implements DataLayer {
     $con->close();
     return $manufacturers;
   }
+
+  // ------ products ------
 
   public function getProductsForId($id) {
     $con = $this->getConnection();
@@ -126,131 +208,6 @@ class DBDataLayer implements DataLayer {
     return $products;
   }
 
-  public function getUser($id) {
-    $user = null;
-    $con = $this->getConnection();
-    $stat = $this->executeStatement($con,
-        'SELECT id, username FROM user WHERE id = ?',
-        function($s) use($id) {$s->bind_param('i', $id);}
-      );
-
-    $stat->bind_result($id, $userName);
-
-    if ($fetch = $stat->fetch()) {
-      $user = new User($id, $userName);
-    }
-
-    $stat->close();
-    $con->close();
-
-    return $user;
-  }
-
-
-  public function isUsernameUsed($userName) {
-    $user = null;
-    $con = $this->getConnection();
-    $stat = $this->executeStatement($con,
-        'SELECT id FROM user WHERE username = ?',
-        function($s) use($userName) {$s->bind_param('s', $userName);}
-      );
-
-    $stat->bind_result($id);
-
-    if ($fetch = $stat->fetch()) {
-      $result = true;
-    } else {
-      $result = false;
-    }
-
-    $stat->close();
-    $con->close();
-
-    return $result;
-  }  
-
-  public function getUserForUserNameAndPassword($userName, $password) {
-    $user = null;
-    $con = $this->getConnection();
-    $stat = $this->executeStatement($con,
-        'SELECT id, password FROM user WHERE username = ?',
-        function($s) use($userName) {$s->bind_param('s', $userName);}
-      );
-
-    $stat->bind_result($id, $passwordHash);
-
-    if ($cat = $stat->fetch() && password_verify($password, $passwordHash)) {
-      $user = new User($id, $userName);
-    }
-
-    $stat->close();
-    $con->close();
-
-    return $user;
-  }
-
-  public function getReviewForProductId($productId) {
-    $reviews = array();
-    $con = $this->getConnection();
-    $stat = $this->executeStatement($con,
-        'SELECT review.id, username, product.name, date, rating, comment
-           FROM `review` 
-           JOIN product ON (review.product = product.id)
-           JOIN user ON (review.user = user.id)
-          WHERE review.product = ?',
-        function($s) use($productId) {$s->bind_param('i', $productId);}
-      );
-
-    $stat->bind_result($id, $user, $product, $date, $rating, $comment);
-    while ($cat = $stat->fetch()) {
-      $reviews[] = new Review($id, $product, $date, $user, $rating, $comment);
-    }
-    $stat->close();
-    $con->close();
-    return $reviews;
-  }
-
-  public function getReviewForUserId($userId) {
-    $reviews = array();
-    $con = $this->getConnection();
-    $stat = $this->executeStatement($con,
-        'SELECT review.id, username, product.name, date, rating, comment
-           FROM `review` 
-           JOIN product ON (review.product = product.id)
-           JOIN user ON (review.user = user.id)
-          WHERE review.user = ?',
-        function($s) use($userId) {$s->bind_param('i', $userId);}
-      );
-
-    $stat->bind_result($id, $user, $product, $date, $rating, $comment);
-    while ($cat = $stat->fetch()) {
-      $reviews[] = new Review($id, $product, $date, $user, $rating, $comment);
-    }
-    $stat->close();
-    $con->close();
-    return $reviews;
-  }
-
-  public function getReviewForId($reviewId) {
-    $con = $this->getConnection();
-    $stat = $this->executeStatement($con,
-        'SELECT review.id, username, product.name, date, rating, comment
-           FROM `review` 
-           JOIN product ON (review.product = product.id)
-           JOIN user ON (review.user = user.id)
-          WHERE review.id = ?',
-        function($s) use($reviewId) {$s->bind_param('i', $reviewId);}
-      );
-
-    $stat->bind_result($id, $user, $product, $date, $rating, $comment);
-    while ($cat = $stat->fetch()) {
-      $review = new Review($id, $product, $date, $user, $rating, $comment);
-    }
-    $stat->close();
-    $con->close();
-    return $review;
-  }  
-
   public function createProduct($userId, $category, $name, $manufacturer) {
     $con = $this->getConnection();
     $con->autocommit(false);
@@ -271,21 +228,6 @@ class DBDataLayer implements DataLayer {
     return $productId;
   }
 
-  public function createUser($username, $password, $firstname, $lastname) {
-    $con = $this->getConnection();
-    $hash =  password_hash($password, PASSWORD_DEFAULT);
-
-    $stat = $this->executeStatement($con,
-        'INSERT INTO `user` (`username`, `password`, `firstName`, `lastName`) VALUES (?, ?, ?, ?)',
-        function($s) use($username, $hash, $firstname, $lastname) {$s->bind_param('ssss', $username, $hash, $firstname, $lastname);}
-      );
-
-    $con->close();
-    $userId = $stat->insert_id;
-    return $userId;
-
-  }
-
   public function updateProduct($productId, $category, $name, $manufacturer) {
     $con = $this->getConnection();
     $con->autocommit(false);
@@ -300,14 +242,85 @@ class DBDataLayer implements DataLayer {
           WHERE product.id = ?',
         function($s) use($catId, $name, $manuId, $productId) {$s->bind_param('siii', $name, $catId, $manuId, $productId);}
       );
-
+    $count = mysqli_stmt_affected_rows($stat);
+    
     $stat->close();
 
     $con->commit();
     $con->close();
-
-    return $productId;
+    if($count >= 0) {
+      return $productId;
+    } else {
+      return null;
+    }
+    
   }
+
+
+
+  // ------ reviews ------
+
+  public function getReviewForProductId($productId) {
+    $reviews = array();
+    $con = $this->getConnection();
+    $stat = $this->executeStatement($con,
+        'SELECT review.id, username, product.name, product.id, date, rating, comment
+           FROM `review` 
+           JOIN product ON (review.product = product.id)
+           JOIN user ON (review.user = user.id)
+          WHERE review.product = ?',
+        function($s) use($productId) {$s->bind_param('i', $productId);}
+      );
+
+    $stat->bind_result($id, $user, $product, $productId, $date, $rating, $comment);
+    while ($cat = $stat->fetch()) {
+      $reviews[] = new Review($id, $product, $productId, $date, $user, $rating, $comment);
+    }
+    $stat->close();
+    $con->close();
+    return $reviews;
+  }
+
+  public function getReviewForUserId($userId) {
+    $reviews = array();
+    $con = $this->getConnection();
+    $stat = $this->executeStatement($con,
+        'SELECT review.id, username, product.name, product.id, date, rating, comment
+           FROM `review` 
+           JOIN product ON (review.product = product.id)
+           JOIN user ON (review.user = user.id)
+          WHERE review.user = ?',
+        function($s) use($userId) {$s->bind_param('i', $userId);}
+      );
+
+    $stat->bind_result($id, $user, $product, $productId, $date, $rating, $comment);
+    while ($cat = $stat->fetch()) {
+      $reviews[] = new Review($id, $product, $productId, $date, $user, $rating, $comment);
+    }
+    $stat->close();
+    $con->close();
+    return $reviews;
+  }
+
+  public function getReviewForId($reviewId) {
+    $con = $this->getConnection();
+    $stat = $this->executeStatement($con,
+        'SELECT review.id, username, product.name, product.id, date, rating, comment
+           FROM `review` 
+           JOIN product ON (review.product = product.id)
+           JOIN user ON (review.user = user.id)
+          WHERE review.id = ?',
+        function($s) use($reviewId) {$s->bind_param('i', $reviewId);}
+      );
+
+    $stat->bind_result($id, $user, $product, $productId, $date, $rating, $comment);
+    while ($cat = $stat->fetch()) {
+      $review = new Review($id, $product, $productId, $date, $user, $rating, $comment);
+    }
+    $stat->close();
+    $con->close();
+    return $review;
+  }  
 
   public function createReview($userId, $productId, $rating, $comment) {
     $con = $this->getConnection();
@@ -326,6 +339,29 @@ class DBDataLayer implements DataLayer {
 
     return $reviewId;
   }  
+
+  public function updateReview($reviewId, $rating, $comment) {
+    $con = $this->getConnection();
+    $con->autocommit(false);
+
+    $stat = $this->executeStatement($con,
+        'UPDATE review 
+            SET rating = ?, 
+            comment = ?
+          WHERE id = ?',
+        function($s) use($reviewId, $rating, $comment) {$s->bind_param('isi', $rating, $comment, $reviewId);}
+      );
+    $count = mysqli_stmt_affected_rows($stat);
+    $stat->close();
+
+    $con->commit();
+    $con->close();
+    if($count > 0) {
+      return $reviewId;
+    } else {
+      return null;
+    }
+  }
   
   // ==== private helper functions
 

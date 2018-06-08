@@ -98,7 +98,7 @@ class Product extends \Framework\Controller {
             'category' => $category,
             'name' => $name,
             'manufacturer' => $manufacturer,
-            'errors' => array('Could not create order. Please try again.')
+            'errors' => array('Could not create product. Please try again.')
           ));
         } else {
           return $this->redirect('Index', 'Product');
@@ -144,7 +144,7 @@ class Product extends \Framework\Controller {
         ));
       } else {
         if ($product->getUser() !== $user->getUsername()) {
-          // something went wrong
+          // trying to change product from other user
           return $this->renderView('CreateProduct', array(
             'user' => $this->authenticationManager->getAuthenticatedUser(),
             'product' => $product,
@@ -166,7 +166,7 @@ class Product extends \Framework\Controller {
             'category' => $category,
             'name' => $name,
             'manufacturer' => $manufacturer,
-            'errors' => array('Could not create order. Please try again.')
+            'errors' => array('Could not modify product. Please try again.')
           ));
         } else {
           return $this->redirect('Index', 'Product');

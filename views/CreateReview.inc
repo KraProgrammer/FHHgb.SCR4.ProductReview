@@ -1,9 +1,19 @@
 <?php self::renderView('partial/Header', $model); ?>
 <div class="container main-container">
-    <h1>Einen Review anlegen</h1>
+    <?php if (isset($model['review']) && $model['review'] !== null): ?>
+        <h1>Einen Review verändern</h1>
+    <?php else: ?>
+        <h1>Einen Review anlegen</h1>
+    <?php endif; ?>
+    <br>
+    <h3>
+        <?php if (isset($model['product']) && $model['product'] !== null) {
+            echo($model['product']->getName());
+        } ?>
+    </h3>
     <?php 
         if (isset($model['review']) && $model['review'] !== null) {
-            self::beginActionForm('Modify', 'Review', array('rid' => $model['review']->getId(), 'pid' => $model['product']->getId()), 'post');
+            self::beginActionForm('Modify', 'Review', array('rid' => $model['review']->getId()), 'post');
         } else {
             self::beginActionForm('Create', 'Review', array( 'pid' => $model['product']->getId()), 'post');            
         }
