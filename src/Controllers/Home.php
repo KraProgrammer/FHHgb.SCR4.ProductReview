@@ -11,7 +11,8 @@ class Home extends \Framework\Controller  {
 
   public function GET_Index() {
     $this->renderView('home', array(
-      'user' => $this->authenticationManager->getAuthenticatedUser()
+      'user' => $this->authenticationManager->getAuthenticatedUser(),
+      'context' => $this->buildActionLink('Index', 'Home', array())    
     ));
   }
 }

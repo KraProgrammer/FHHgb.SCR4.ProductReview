@@ -12,6 +12,7 @@ class Review extends \Framework\Controller {
 
   const REV_ID = 'rid';
   const PROD_ID = 'pid';
+  const CTX = 'ctx';
 
   public function GET_Index() {
     if (!$this->authenticationManager->isAuthenticated()) {

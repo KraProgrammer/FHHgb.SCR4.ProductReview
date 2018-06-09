@@ -3,7 +3,7 @@
 <div class="container main-container">
   <h1>Login</h1>
 
-  <?php self::beginActionForm('LogIn', 'User', null, 'post'); ?>
+  <?php self::beginActionForm('LogIn', 'User', array('ctx' => $model['context']), 'post'); ?>
     <div class="form-group">
       <label for="userName"> Username</label>
       <input class="form-control" id="userName" name="un" value='<?php self::htmlOut($model['userName']); ?>'>

@@ -11,14 +11,18 @@ class User extends \Framework\Controller {
       $this->dataLayer = $dataLayer;
     }
 
+    const CTX = 'ctx';
+
     public function GET_LogIn() {
-        // loginpage
+        // loginpage      
+
         if ($this->authenticationManager->isAuthenticated()) {
           return $this->redirect('Index', 'Home');
         } else {
           return $this->renderView('Login', array(
             'user' => $this->authenticationManager->getAuthenticatedUser(),
-            'userName'=> ''
+            'userName'=> '',
+            'context' => $this->getParam(self::CTX)
           ));
         }
 
@@ -88,7 +92,7 @@ class User extends \Framework\Controller {
           ));
         } else {
           if ($this->authenticationManager->authenticate($this->getParam('un'), $this->getParam('pwd'))) {
-            return $this->redirect('Index', 'Home');
+            return $this->redirectToContext($this->getParam(self::CTX), 'Index', 'Home');
           } 
         }
       }
@@ -98,7 +102,7 @@ class User extends \Framework\Controller {
     public function POST_LogIn() {
       // authenticate user and redirect on succcess or show login page again
       if ($this->authenticationManager->authenticate($this->getParam('un'), $this->getParam('pwd'))) {
-        return $this->redirect('Index', 'Home');
+        return $this->redirectToContext($this->getParam(self::CTX), 'Index', 'Home');
       } else {
         // ERROR
         return $this->renderView('Login', array(
@@ -112,7 +116,7 @@ class User extends \Framework\Controller {
     public function POST_LogOut() {
         // sign out current user and redirect to main page
         $this->authenticationManager->signOut();
-        return $this->redirect('Index', 'Home'); // TODO Location (e.g. again with context)
+        return $this->redirectToContext($this->getParam(self::CTX), 'Index', 'Home');
     }
 
 }

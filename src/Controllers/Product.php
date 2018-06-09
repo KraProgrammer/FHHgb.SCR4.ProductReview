@@ -13,6 +13,7 @@ class Product extends \Framework\Controller {
 
     const CAT_ID = 'cid';
     const PROD_ID = 'pid';
+    const CTX = 'ctx';
   
     public function GET_Index() {
       $this->renderView('ProductList', array(
@@ -20,7 +21,7 @@ class Product extends \Framework\Controller {
         'categories' => $this->dataLayer->getCategories(),
         'selectedCategoryId' => $this->getParam(self::CAT_ID),
         'products' => $this->hasParam(self::CAT_ID) ? $this->dataLayer->getProductsForCategory($this->getParam(self::CAT_ID)) : null,
-        'context' => $this->buildActionLink('Index', 'Products', array(self::CAT_ID => $this->getParam(self::CAT_ID)))
+        'context' => $this->buildActionLink('Index', 'Product', array(self::CAT_ID => $this->getParam(self::CAT_ID)))
       ));
     }
 
@@ -29,14 +30,18 @@ class Product extends \Framework\Controller {
         'user' => $this->authenticationManager->getAuthenticatedUser(),
         'selectedProductId' => $this->getParam(self::PROD_ID),
         'product' => $this->hasParam(self::PROD_ID) ? $this->dataLayer->getProductsForId($this->getParam(self::PROD_ID)) : null,
-        'reviews' => $this->hasParam(self::PROD_ID) ? $this->dataLayer->getReviewForProductId($this->getParam(self::PROD_ID)) : null
+        'reviews' => $this->hasParam(self::PROD_ID) ? $this->dataLayer->getReviewForProductId($this->getParam(self::PROD_ID)) : null,
+        'context' => $this->buildActionLink('Details', 'Product', array(self::PROD_ID => $this->getParam(self::PROD_ID)))
       ));
     }
 
     public function GET_Create() {
       if (!$this->authenticationManager->isAuthenticated()) {
-        return $this->redirect('LogIn', 'User'); // TODO add context so that user acan return here after loggging in
-      }
+        if ($this->hasParam(self::PROD_ID)) {
+          return $this->redirect('LogIn', 'User', array('ctx' => $this->buildActionLink('Create', 'Product', array(self::PROD_ID => $this->getParam(self::PROD_ID)))));
+        } else {
+          return $this->redirect('LogIn', 'User', array('ctx' => $this->buildActionLink('Create', 'Product', array())));
+        }      }
       $product = $this->hasParam(self::PROD_ID) ? $this->dataLayer->getProductsForId($this->getParam(self::PROD_ID)) : null;
 
       if ($product !== null) {
@@ -54,13 +59,18 @@ class Product extends \Framework\Controller {
         'product' => $product,
         'category' => $category,
         'name' => $name,
-        'manufacturer' => $manufacturer     
+        'manufacturer' => $manufacturer,
+        'context' => $this->buildActionLink('Index', 'Product', array())     
       ));
     }
 
     public function POST_Create() {
       if (!$this->authenticationManager->isAuthenticated()) {
-        return $this->redirect('LogIn', 'User'); // TODO add context so that user acan return here after loggging in
+        if ($this->hasParam(self::PROD_ID)) {
+          return $this->redirect('LogIn', 'User', array('ctx' => $this->buildActionLink('Create', 'Product', array(self::PROD_ID => $this->getParam(self::PROD_ID)))));
+        } else {
+          return $this->redirect('LogIn', 'User', array('ctx' => $this->buildActionLink('Create', 'Product', array())));
+        }
       }
 
       // validate from datalayer
@@ -85,7 +95,8 @@ class Product extends \Framework\Controller {
           'category' => $category,
           'name' => $name,
           'manufacturer' => $manufacturer,
-          'errors' => $errors
+          'errors' => $errors,
+          'context' => $this->buildActionLink('Index', 'Product', array())  
         ));
       } else {
         $user = $this->authenticationManager->getAuthenticatedUser();
@@ -98,17 +109,20 @@ class Product extends \Framework\Controller {
             'category' => $category,
             'name' => $name,
             'manufacturer' => $manufacturer,
-            'errors' => array('Could not create product. Please try again.')
+            'errors' => array('Could not create product. Please try again.'),
+            'context' => $this->buildActionLink('Index', 'Product', array())  
           ));
         } else {
-          return $this->redirect('Index', 'Product');
+          return $this->redirect('Details', 'Product', array(
+            self::PROD_ID => $productId
+          ));
         }
       }
     }
 
     public function POST_Modify() {
       if (!$this->authenticationManager->isAuthenticated()) {
-        return $this->redirect('LogIn', 'User'); // TODO add context so that user acan return here after loggging in
+        return $this->redirect('LogIn', 'User', array('ctx' => $this->buildActionLink('Create', 'Product', array(self::PROD_ID => $this->getParam(self::PROD_ID)))));
       }
       
       // validate from datalayer
@@ -140,7 +154,8 @@ class Product extends \Framework\Controller {
           'category' => $category,
           'name' => $name,
           'manufacturer' => $manufacturer,
-          'errors' => $errors
+          'errors' => $errors,
+          'context' => $this->buildActionLink('Index', 'Product', array())  
         ));
       } else {
         if ($product->getUser() !== $user->getUsername()) {
@@ -151,7 +166,8 @@ class Product extends \Framework\Controller {
             'category' => $category,
             'name' => $name,
             'manufacturer' => $manufacturer,
-            'errors' => array('Cannot change products of other users. ')
+            'errors' => array('Cannot change products of other users. '),
+            'context' => $this->buildActionLink('Index', 'Product', array())  
           ));
         }
 
@@ -165,10 +181,13 @@ class Product extends \Framework\Controller {
             'category' => $category,
             'name' => $name,
             'manufacturer' => $manufacturer,
-            'errors' => array('Could not modify product. Please try again.')
+            'errors' => array('Could not modify product. Please try again.'),
+            'context' => $this->buildActionLink('Index', 'Product', array())  
           ));
         } else {
-          return $this->redirect('Index', 'Product');
+          return $this->redirect('Details', 'Product', array(
+            self::PROD_ID => $productId
+          ));
         }
       }
     }

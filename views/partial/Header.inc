@@ -25,7 +25,9 @@
 					<li class="nav-item"><?php self::actionLink('Bewertungen', 'Index', 'Review') ?></li>
 				</ul>
 				<div class="navbar-right">
-					<?php self::renderView('partial/User', $model['user']); ?>
+					<?php self::renderView('partial/User', array(
+						'user' => $model['user'],
+        		'context' => isset($model['context']) ? $model['context'] : null )); ?>
 					</div>
 		  	</div>	
     </nav>
