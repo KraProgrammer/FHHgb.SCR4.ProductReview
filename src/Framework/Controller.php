@@ -24,7 +24,7 @@ class Controller {
     header("Location: $url");
   }
 
-  public final function redirectToContext(string $ctx, string $action = null, string $controller = null, array $params = array()) {
+  public final function redirectToContext($ctx, string $action = null, string $controller = null, array $params = array()) {
     return $ctx !== null && $ctx !== '' ? $this->redirectToUrl($ctx) : $this->redirect('Index', 'Home');
   }
 
