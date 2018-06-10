@@ -41,7 +41,8 @@ class Product extends \Framework\Controller {
           return $this->redirect('LogIn', 'User', array('ctx' => $this->buildActionLink('Create', 'Product', array(self::PROD_ID => $this->getParam(self::PROD_ID)))));
         } else {
           return $this->redirect('LogIn', 'User', array('ctx' => $this->buildActionLink('Create', 'Product', array())));
-        }      }
+        }
+      }
       $product = $this->hasParam(self::PROD_ID) ? $this->dataLayer->getProductsForId($this->getParam(self::PROD_ID)) : null;
 
       if ($product !== null) {

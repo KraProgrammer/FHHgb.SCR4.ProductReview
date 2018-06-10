@@ -16,17 +16,22 @@ class Review extends \Framework\Controller {
 
   public function GET_Index() {
     if (!$this->authenticationManager->isAuthenticated()) {
-      return $this->redirect('LogIn', 'User'); // TODO add context so that user acan return here after loggging in
+      return $this->redirect('LogIn', 'User', array('ctx' => $this->buildActionLink('Index', 'Review', array())));
     }
     $this->renderView('ReviewList', array(
         'user' => $this->authenticationManager->getAuthenticatedUser(),
-        'reviews' => $this->authenticationManager->isAuthenticated() ?  $this->dataLayer->getReviewForUserId($this->authenticationManager->getAuthenticatedUser()->getId()) : null
+        'reviews' => $this->authenticationManager->isAuthenticated() ?  $this->dataLayer->getReviewForUserId($this->authenticationManager->getAuthenticatedUser()->getId()) : null,
+        'context' => $this->buildActionLink('Index', 'Review', array())
       ));
   }
 
   public function GET_Create() {
     if (!$this->authenticationManager->isAuthenticated()) {
-      return $this->redirect('LogIn', 'User'); // TODO add context so that user acan return here after loggging in
+      if ($this->hasParam(self::REV_ID)) {
+        return $this->redirect('LogIn', 'User', array('ctx' => $this->buildActionLink('Create', 'Review', array(self::REV_ID => $this->getParam(self::REV_ID)))));
+      } else {
+        return $this->redirect('LogIn', 'User', array('ctx' => $this->buildActionLink('Create', 'Review', array(self::PROD_ID => $this->getParam(self::PROD_ID)))));
+      }
     }
 
     $review = $this->hasParam(self::REV_ID) ? $this->dataLayer->getReviewForId($this->getParam(self::REV_ID)) : null;
@@ -49,18 +54,25 @@ class Review extends \Framework\Controller {
       $comment = '';
     }
 
+    $actionLink = $this->getActionLink();
+
     $this->renderView('CreateReview', array(
       'user' => $this->authenticationManager->getAuthenticatedUser(),
       'review' => $review, 
       'product' => $product,
       'rating' => $rating,
-      'comment' => $comment     
+      'comment' => $comment,
+      'context' => $actionLink 
     ));
   } 
   
   public function POST_Create() {
     if (!$this->authenticationManager->isAuthenticated()) {
-      return $this->redirect('LogIn', 'User'); // TODO add context so that user acan return here after loggging in
+      if ($this->hasParam(self::REV_ID)) {
+        return $this->redirect('LogIn', 'User', array('ctx' => $this->buildActionLink('Create', 'Review', array(self::REV_ID => $this->getParam(self::REV_ID)))));
+      } else {
+        return $this->redirect('LogIn', 'User', array('ctx' => $this->buildActionLink('Create', 'Review', array())));
+      }
     }
 
     $errors = array();
@@ -75,7 +87,9 @@ class Review extends \Framework\Controller {
       $errors[] = "Invalid rating.";
     }
     $comment = $this->hasParam('comment') ? trim($this->getParam('comment')) : null;
-    
+    $actionLink = $this->getActionLink();
+
+
     if (count($errors) > 0 ) {
       // render error view
       return $this->renderView('CreateReview', array(
@@ -83,7 +97,8 @@ class Review extends \Framework\Controller {
         'rating' => $rating,
         'product' => $product,
         'comment' => $comment,
-        'errors' => $errors
+        'errors' => $errors,
+        'context' => $actionLink 
       ));
     } else {
       $user = $this->authenticationManager->getAuthenticatedUser();
@@ -96,17 +111,24 @@ class Review extends \Framework\Controller {
           'rating' => $rating,
           'product' => $product,
           'comment' => $comment,
-          'errors' => array('Could not create review. Please try again.')
+          'errors' => array('Could not create review. Please try again.'),
+          'context' => $actionLink 
         ));
       } else {
-        return $this->redirect('Index', 'Review');
+        return $this->redirect('Details', 'Product', array(
+          self::PROD_ID => $product->getId()
+        ));
       }
     }
   }
 
   public function POST_Modify() {
     if (!$this->authenticationManager->isAuthenticated()) {
-      return $this->redirect('LogIn', 'User'); // TODO add context so that user acan return here after loggging in
+      if ($this->hasParam(self::REV_ID)) {
+        return $this->redirect('LogIn', 'User', array('ctx' => $this->buildActionLink('Create', 'Review', array(self::REV_ID => $this->getParam(self::REV_ID)))));
+      } else {
+        return $this->redirect('LogIn', 'User', array('ctx' => $this->buildActionLink('Create', 'Review', array())));
+      }
     }
 
     $review = $this->hasParam(self::REV_ID) ? $this->dataLayer->getReviewForId($this->getParam(self::REV_ID)) : null;
@@ -122,6 +144,7 @@ class Review extends \Framework\Controller {
       $errors[] = "Invalid rating.";
     }
     $comment = $this->hasParam('comment') ? trim($this->getParam('comment')) : null;
+    $actionLink = $this->getActionLink();
     
     if (count($errors) > 0 ) {
       // render error view
@@ -131,7 +154,8 @@ class Review extends \Framework\Controller {
         'rating' => $rating,
         'product' => null,
         'comment' => $comment,
-        'errors' => $errors
+        'errors' => $errors,
+        'context' => $actionLink 
       ));
     } else {
       $user = $this->authenticationManager->getAuthenticatedUser();
@@ -144,7 +168,8 @@ class Review extends \Framework\Controller {
           'rating' => $rating,
           'product' => null,
           'comment' => $comment,
-          'errors' => array('Cannot change review of other users. ')
+          'errors' => array('Cannot change review of other users. '),
+          'context' => $actionLink 
         ));
       }
 
@@ -158,10 +183,13 @@ class Review extends \Framework\Controller {
           'rating' => $rating,
           'product' => null,
           'comment' => $comment,
-          'errors' => array('Could not modify review. Please try again.')
+          'errors' => array('Could not modify review. Please try again.'),
+          'context' => $actionLink 
         ));
       } else {
-        return $this->redirect('Index', 'Review');
+        return $this->redirect('Details', 'Product', array(
+          self::PROD_ID => $review->getProductId()
+        ));
       }
     }
 
@@ -169,11 +197,16 @@ class Review extends \Framework\Controller {
 
   public function GET_Delete() {
     if (!$this->authenticationManager->isAuthenticated()) {
-      return $this->redirect('LogIn', 'User'); // TODO add context so that user acan return here after loggging in
+      if ($this->hasParam(self::REV_ID)) {
+        return $this->redirect('LogIn', 'User', array('ctx' => $this->buildActionLink('Create', 'Review', array(self::REV_ID => $this->getParam(self::REV_ID)))));
+      } else {
+        return $this->redirect('LogIn', 'User', array('ctx' => $this->buildActionLink('Create', 'Review', array())));
+      }
     }
 
     $errors = array();
     $review = $this->hasParam(self::REV_ID) ? $this->dataLayer->getReviewForId($this->getParam(self::REV_ID)) : null;
+    $actionLink = $this->getActionLink();
 
     $errors = array();
     if ($review === null) {
@@ -184,7 +217,8 @@ class Review extends \Framework\Controller {
       // render error view
       return $this->renderView('CreateReview', array(
         'user' => $this->authenticationManager->getAuthenticatedUser(),
-        'errors' => $errors
+        'errors' => $errors,
+        'context' => $actionLink 
       ));
     } else {
       $user = $this->authenticationManager->getAuthenticatedUser();
@@ -194,7 +228,8 @@ class Review extends \Framework\Controller {
         return $this->renderView('CreateReview', array(
           'user' => $this->authenticationManager->getAuthenticatedUser(),
           'review' => $review, 
-          'errors' => array('Cannot delete review of other users. ')
+          'errors' => array('Cannot delete review of other users. '),
+          'context' => $actionLink 
         ));
       }
 
@@ -205,11 +240,23 @@ class Review extends \Framework\Controller {
         return $this->renderView('CreateReview', array(
           'user' => $this->authenticationManager->getAuthenticatedUser(),
           'review' => $review, 
-          'errors' => array('Could not delete review. Please try again.')
+          'errors' => array('Could not delete review. Please try again.'),
+          'context' => $actionLink 
         ));
       } else {
-        return $this->redirect('Index', 'Review');
+        return $this->redirect('Details', 'Product', array(
+          self::PROD_ID => $review->getProductId()
+        ));
       }
     }
   }
+
+  private function getActionLink() {
+    if ($this->hasParam(self::REV_ID)) {
+      return $this->buildActionLink('Create', 'Review', array(self::REV_ID => $this->getParam(self::REV_ID)));
+    } else {
+      return $this->buildActionLink('Create', 'Review', array(self::PROD_ID => $this->getParam(self::PROD_ID)));
+    }
+  }
+
 }
