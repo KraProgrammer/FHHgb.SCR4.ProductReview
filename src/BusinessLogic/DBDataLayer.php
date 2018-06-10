@@ -14,12 +14,11 @@ class DBDataLayer implements DataLayer {
   private $password;
   private $database;
 
-  public function __construct() {
-    // TODO make this nicer
-    $this->server = 'localhost';
-    $this->userName = 'root';
-    $this->password = '';
-    $this->database = 'productreview';
+  public function __construct(\BusinessLogic\DBConfig $dbConfig) {
+    $this->server = $dbConfig->getServer();
+    $this->userName = $dbConfig->getUserName();
+    $this->password = $dbConfig->getPassword();
+    $this->database = $dbConfig->getDatabase();
   }
 
   // ------ user ------

@@ -9,6 +9,7 @@ spl_autoload_register(function (string $class) {
   }
 });
 
+\Framework\Injector::register(\BusinessLogic\DBConfig::class, true, \BusinessLogic\DBConfigLocalhost::class);
 \Framework\Injector::register(\BusinessLogic\DataLayer::class, false, \BusinessLogic\DBDataLayer::class);
 \Framework\Injector::register(\BusinessLogic\Session::class, true);
 
